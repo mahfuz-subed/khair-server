@@ -30,8 +30,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/events", async (req, res) => {
-  const result = await eventsCollection.find().toArray();
-  res.send(result);
+  const today = new Date();
+  const homepageEvents = await eventsCollection
+    .find({ eventDate: { $gte: today } })
+    .sort(1)
+    .limit(6)
+    .toArray();
+  res.send(homepageEvents);
 });
 
 app.get("/event/:id", async (req, res) => {
