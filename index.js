@@ -38,6 +38,14 @@ app.get("/events", async (req, res) => {
     .toArray();
   res.send(homepageEvents);
 });
+app.get("/upcoming-events", async (req, res) => {
+  const today = new Date();
+  const upcomingEvents = await eventsCollection
+    .find({ eventDate: { $gte: today } })
+    .sort(1)
+    .toArray();
+  res.send(upcomingEvents);
+});
 
 app.get("/event/:id", async (req, res) => {
   const { id } = req.params;
