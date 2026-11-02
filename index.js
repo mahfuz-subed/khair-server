@@ -94,8 +94,9 @@ app.post("/joined-events", async (req, res) => {
 
 app.get("/my-joined-events/:createdBy", async (req, res) => {
   const { createdBy } = req.params;
-  const result = await joinedEventsCollection.find({ createdBy: createdBy })
-    .toArray;
+  const result = await joinedEventsCollection
+    .find({ createdBy: createdBy })
+    .toArray();
   res.send(result);
 });
 
