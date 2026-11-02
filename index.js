@@ -62,6 +62,14 @@ app.get("/event/:id", async (req, res) => {
   res.send(result);
 });
 
+app.get("/my-events/:createdBy", async (req, res) => {
+  const { createdBy } = req.params;
+  const result = await eventsCollection
+    .find({ createdBy: createdBy })
+    .toArray();
+  res.send(result);
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
