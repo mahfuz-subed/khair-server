@@ -102,9 +102,9 @@ app.get("/my-joined-events/:createdBy", async (req, res) => {
 
 app.get("/gallery-events", async (req, res) => {
   const today = new Date();
-  const result = eventsCollection
+  const result = await eventsCollection
     .find({ eventDate: { $lt: today } })
-    .sort({ eventDate: -1 })
+    .sort({ eventDate: 1 })
     .limit(6)
     .toArray();
   res.send(result);
