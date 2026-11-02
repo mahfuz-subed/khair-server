@@ -34,7 +34,7 @@ app.get("/events", async (req, res) => {
   const today = new Date();
   const homepageEvents = await eventsCollection
     .find({ eventDate: { $gt: today } })
-    .sort({ eventData: 1 })
+    .sort({ eventDate: 1 })
     .limit(6)
     .toArray();
   res.send(homepageEvents);
@@ -51,7 +51,7 @@ app.get("/upcoming-events", async (req, res) => {
   const today = new Date();
   const upcomingEvents = await eventsCollection
     .find({ eventDate: { $gt: today } })
-    .sort({ eventData: 1 })
+    .sort({ eventDate: 1 })
     .toArray();
   res.send(upcomingEvents);
 });
@@ -104,7 +104,7 @@ app.get("/gallery-events", async (req, res) => {
   const today = new Date();
   const result = eventsCollection
     .find({ eventDate: { $lt: today } })
-    .sort({ eventData: -1 })
+    .sort({ eventDate: -1 })
     .limit(6)
     .toArray();
   res.send(result);
