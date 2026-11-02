@@ -31,18 +31,27 @@ app.get("/", (req, res) => {
 
 app.get("/events", async (req, res) => {
   const today = new Date();
+  console.log("today", today);
   const homepageEvents = await eventsCollection
-    .find({ eventDate: { $gte: today } })
-    .sort(1)
+    .find({ eventDate: { $gt: today } })
+    .sort({ eventData: 1 })
     .limit(6)
     .toArray();
   res.send(homepageEvents);
 });
+
+app.post("/add-event", async (req, res) => {
+  const data = req.body;
+  data.eventDate = new Date(data.eventDate);
+  const result = await eventsCollection.insertOne(data);
+  res.send(result);
+});
+
 app.get("/upcoming-events", async (req, res) => {
   const today = new Date();
   const upcomingEvents = await eventsCollection
-    .find({ eventDate: { $gte: today } })
-    .sort(1)
+    .find({ eventDate: { $gt: today } })
+    .sort({ eventData: 1 })
     .toArray();
   res.send(upcomingEvents);
 });
