@@ -100,6 +100,16 @@ app.get("/my-joined-events/:createdBy", async (req, res) => {
   res.send(result);
 });
 
+app.get("/gallery-events", async (req, res) => {
+  const today = new Date();
+  const result = eventsCollection
+    .find({ eventDate: { $lt: today } })
+    .sort({ eventData: -1 })
+    .limit(6)
+    .toArray();
+  res.send(result);
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
