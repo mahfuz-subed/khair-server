@@ -92,6 +92,13 @@ app.post("/joined-events", async (req, res) => {
   res.send(result);
 });
 
+app.get("/my-joined-events/:createdBy", async (req, res) => {
+  const { createdBy } = req.params;
+  const result = await joinedEventsCollection.find({ createdBy: createdBy })
+    .toArray;
+  res.send(result);
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
