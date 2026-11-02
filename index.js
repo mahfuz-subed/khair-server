@@ -31,7 +31,6 @@ app.get("/", (req, res) => {
 
 app.get("/events", async (req, res) => {
   const today = new Date();
-  console.log("today", today);
   const homepageEvents = await eventsCollection
     .find({ eventDate: { $gt: today } })
     .sort({ eventData: 1 })
@@ -67,6 +66,16 @@ app.get("/my-events/:createdBy", async (req, res) => {
   const result = await eventsCollection
     .find({ createdBy: createdBy })
     .toArray();
+  res.send(result);
+});
+
+app.patch("/my-events/:id", async (req, res) => {
+  const { id } = req.params;
+  const { _id, ...updatedData } = req.body;
+  const result = await eventsCollection.updateOne(
+    { _id: new ObjectId(id) },
+    { $set: updatedData },
+  );
   res.send(result);
 });
 
