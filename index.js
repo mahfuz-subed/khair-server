@@ -24,6 +24,7 @@ export async function connectToMongoDB() {
 const mongoClient = await connectToMongoDB();
 const db = mongoClient.db("khairDB");
 const eventsCollection = db.collection("events");
+const joinedEventsCollection = db.collection("joined-events");
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -82,6 +83,12 @@ app.patch("/my-events/:id", async (req, res) => {
 app.delete("/my-events/:id", async (req, res) => {
   const { id } = req.params;
   const result = await eventsCollection.deleteOne({ _id: new ObjectId(id) });
+  res.send(result);
+});
+
+app.post("/joined-events", async (req, res) => {
+  const data = req.body;
+  const result = await joinedEventsCollection.insertOne(data);
   res.send(result);
 });
 
