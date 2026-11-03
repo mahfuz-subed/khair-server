@@ -2,6 +2,7 @@ import express from "express";
 import "dotenv/config";
 import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 const app = express();
 const port = 5000;
@@ -26,6 +27,30 @@ const db = mongoClient.db("khairDB");
 const eventsCollection = db.collection("events");
 const joinedEventsCollection = db.collection("joined-events");
 
+const verifyToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  console.log("authheadr", authHeader);
+  if (!authHeader) {
+    return res.status(401).send({ msg: "Unauthorized" });
+  }
+  const token = authHeader.split(" ")[1];
+  console.log("token", token);
+  if (!token) {
+    return res.status(401).send({ msg: "Unauthorized" });
+  }
+
+  const JWKS = createRemoteJWKSet(
+    new URL(`${process.env.CLIENT_URL}/api/auth/jwks`),
+  );
+  try {
+    const { payload } = await jwtVerify(token, JWKS);
+    console.log(payload);
+    next();
+  } catch (error) {
+    return res.status(500).send({ msg: "Server Error!" });
+  }
+};
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
@@ -40,7 +65,7 @@ app.get("/events", async (req, res) => {
   res.send(homepageEvents);
 });
 
-app.post("/add-event", async (req, res) => {
+app.post("/add-event", verifyToken, async (req, res) => {
   const data = req.body;
   data.eventDate = new Date(data.eventDate);
   const result = await eventsCollection.insertOne(data);
@@ -62,7 +87,7 @@ app.get("/event/:id", async (req, res) => {
   res.send(result);
 });
 
-app.get("/my-events/:createdBy", async (req, res) => {
+app.get("/my-events/:createdBy", verifyToken, async (req, res) => {
   const { createdBy } = req.params;
   const result = await eventsCollection
     .find({ createdBy: createdBy })
@@ -70,7 +95,7 @@ app.get("/my-events/:createdBy", async (req, res) => {
   res.send(result);
 });
 
-app.patch("/my-events/:id", async (req, res) => {
+app.patch("/my-events/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
   const { _id, ...updatedData } = req.body;
   const result = await eventsCollection.updateOne(
@@ -80,19 +105,19 @@ app.patch("/my-events/:id", async (req, res) => {
   res.send(result);
 });
 
-app.delete("/my-events/:id", async (req, res) => {
+app.delete("/my-events/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
   const result = await eventsCollection.deleteOne({ _id: new ObjectId(id) });
   res.send(result);
 });
 
-app.post("/joined-events", async (req, res) => {
+app.post("/joined-events", verifyToken, async (req, res) => {
   const data = req.body;
   const result = await joinedEventsCollection.insertOne(data);
   res.send(result);
 });
 
-app.get("/my-joined-events/:createdBy", async (req, res) => {
+app.get("/my-joined-events/:createdBy", verifyToken, async (req, res) => {
   const { createdBy } = req.params;
   const result = await joinedEventsCollection
     .find({ createdBy: createdBy })
