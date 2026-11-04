@@ -134,6 +134,35 @@ app.get("/past-events", async (req, res) => {
   res.send(result);
 });
 
+app.get("/community-champions", async (req, res) => {
+  const contributors = await eventsCollection
+    .aggregate([
+      { $group: { _id: "$createdBy", totalEvents: { $sum: 1 } } },
+      { $sort: { totalEvents: -1 } },
+      {
+        $lookup: {
+          from: "user",
+          localField: "_id",
+          foreignField: "email",
+          as: "userInfo",
+        },
+      },
+      { $unwind: "$userInfo" },
+      {
+        $project: {
+          _id: 0,
+          email: "$_id",
+          totalEvents: 1,
+          name: "$userInfo.name",
+          image: "$userInfo.image",
+        },
+      },
+    ])
+    .toArray();
+  console.log(contributors);
+  res.send(contributors);
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
